@@ -3,6 +3,7 @@
 # Build the React app
 echo "Building React app..."
 cd ../pokemon-card-viewer
+
 npm run build
 
 if [ $? -ne 0 ]; then

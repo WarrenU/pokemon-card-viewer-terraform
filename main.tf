@@ -9,12 +9,28 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-west-2"  # Change to your preferred region
+  region = var.region
 }
 
 # S3 bucket for hosting the static website
 resource "aws_s3_bucket" "pokemon_card_viewer" {
   bucket = "pokemon-card-viewer-${random_string.bucket_suffix.result}"
+}
+
+# CORS configuration for the bucket
+resource "aws_s3_bucket_cors_configuration" "pokemon_card_viewer" {
+  bucket = aws_s3_bucket.pokemon_card_viewer.id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = [
+      "http://localhost:3000",         # for local development
+      "http://${aws_s3_bucket_website_configuration.pokemon_card_viewer.website_endpoint}" # S3 website endpoint
+      # or your custom CloudFront / domain, e.g. "https://pokemon.example.com"
+    ]
+    max_age_seconds = 3000
+  }
 }
 
 # Random string for unique bucket name
